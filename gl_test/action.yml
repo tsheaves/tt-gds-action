@@ -17,6 +17,11 @@ runs:
       with:
         name: tt_submission
 
+    - name: Download GDS artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: sdf
+
     - name: Set up environment variables
       shell: bash
       run: |
@@ -25,6 +30,8 @@ runs:
         PDK=sky130A
         IVERILOG_TAG=master
         IVERILOG_ROOT=/home/runner/iverilog
+        FIXED_PDK_SIM_FILES=/home/runner/pdk_sim_files
+        FIXED_PDK_DIR=$FIXED_PDK_SIM_FILES/verilog/cvc_pdk
         EOF
 
     - name: Install Sky130 PDK
@@ -56,20 +63,38 @@ runs:
     - name: Install the latest iverilog w/ SDF annotation interconnect support
       shell: bash
       run: | 
-        git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git $IVERILOG_ROOT
-        sudo apt-get install -y autoconf gperf make gcc g++ bison flex
-        make -C $IVERILOG_ROOT install --prefix=$IVERILOG_ROOT
-        export PATH=$IVERILOG_ROOT/bin:$PATH
+      cat << EOF >> $GITHUB_ENV
+      IVERILOG_ROOT=/home/runner/iverilog
+      IVERILOG_TAG=master
+      EOF
+      mkdir -p $IVERILOG_ROOT
+      cd $IVERILOG_ROOT
+      git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git .
+      sudo apt-get install -y autoconf gperf make gcc g++ bison flex
+      sh autoconf.sh
+      ./configure --prefix=$IVERILOG_ROOT
+      make 
+      make install
+      export PATH=$IVERILOG_ROOT/bin:$PATH 
+
+    - name: Install fixed skywater SDF simulation libraries from EFABLESS
+      run: |
+        mkdir -p $FIXED_PDK_SIM_FILES
+        git clone --filter=blob:none --no-checkout https://github.com/efabless/caravel_mgmt_soc_litex.git $FIXED_PDK_SIM_FILES
+        cd $FIXED_PDK_SIM_FILES
+        git sparse-checkout set verilog/cvc-pdk
+        git checkout
 
     - name: Run tests
       shell: bash
       run: |
-        cp tt_submission/*.v "${{ inputs.test-dir }}/gate_level_netlist.v"
+        cp -rf tt_submission "${{ inputs.test-dir }}/gln"
+        cp -rf sdf "${{ inputs.test-dir }}/sdf"
         cd "${{ inputs.test-dir }}"
+        python3 -gln_src=gln/ -sdf_src=sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
         rm -f tb.vcd results.xml
         make clean
-        GATES=yes make
-
+        GATES=yes SIM=icarus FIXED_PDK_DIR=$FIXED_PDK_DIR make
         # `make` will return success even if the tests fail, so check for failure in results.xml
         test -f results.xml
         ! grep failure results.xml
@@ -80,6 +105,7 @@ runs:
       with:
           name: gatelevel_test_vcd
           path: |
+            ${{ inputs.test-dir }}/theta_sweep.png
             ${{ inputs.test-dir }}/tb.vcd
             ${{ inputs.test-dir }}/results.xml
 
