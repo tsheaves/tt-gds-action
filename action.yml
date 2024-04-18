@@ -19,7 +19,6 @@ runs:
         OPENLANE_TAG=2024.04.02
         OPENLANE_IMAGE_NAME=efabless/openlane:2024.04.02
         OPENLANE_ROOT=/home/runner/openlane
-        IVERILOG_ROOT=/home/runner/iverilog
         PDK_ROOT=/home/runner/pdk
         PDK=sky130A
         EOF
@@ -59,13 +58,6 @@ runs:
         cd $OPENLANE_ROOT
         make
 
-    - name: Get latest iverilog
-      shell: bash
-      run: | 
-        git clone --depth=1 --branch $IVERILOG_TAG https://github.com/steveicarus/iverilog.git $IVERILOG_ROOT
-        apt install -y autoconf gperf make gcc g++ bison flex
-        make install --prefix=$IVERILOG_ROOT
-        
 
     - name: Make GDS with OpenLane
       shell: bash
