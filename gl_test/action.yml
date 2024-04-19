@@ -71,6 +71,7 @@ runs:
         make 
         make install
         echo "$IVERILOG_ROOT/bin" >> $GITHUB_PATH
+        
 
     - name: Install fixed skywater SDF simulation libraries from EFABLESS
       shell: bash
