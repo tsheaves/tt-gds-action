@@ -17,11 +17,6 @@ runs:
       with:
         name: tt_submission
 
-    - name: Download GDS artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: sdf 
-
     - name: Set up environment variables
       shell: bash
       run: |
