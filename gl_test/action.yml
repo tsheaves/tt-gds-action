@@ -87,7 +87,7 @@ runs:
         cp -rf tt_submission "${{ inputs.test-dir }}/gln"
         cp -rf sdf "${{ inputs.test-dir }}/sdf"
         cd "${{ inputs.test-dir }}"
-        python3 -gln_src=gln/ -sdf_src=sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
+        python3 rename_gl_final.py -gln_src=gln/ -sdf_src=sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
         rm -f tb.vcd results.xml
         make clean
         GATES=yes SIM=icarus FIXED_PDK_DIR=$FIXED_PDK_DIR make
