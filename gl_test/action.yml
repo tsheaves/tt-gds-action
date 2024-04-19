@@ -101,7 +101,8 @@ runs:
       with:
           name: gatelevel_test_vcd
           path: |
-            ${{ inputs.test-dir }}/theta_sweep.png
+            ${{ inputs.test-dir }}/theta_sweep_bypass.png
+            ${{ inputs.test-dir }}/theta_sweep_no_bypass.png
             ${{ inputs.test-dir }}/tb.vcd
             ${{ inputs.test-dir }}/results.xml
 
