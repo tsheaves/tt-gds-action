@@ -78,6 +78,7 @@ runs:
         export PATH=$IVERILOG_ROOT/bin:$PATH 
 
     - name: Install fixed skywater SDF simulation libraries from EFABLESS
+      shell: bash
       run: |
         mkdir -p $FIXED_PDK_SIM_FILES
         git clone --filter=blob:none --no-checkout https://github.com/efabless/caravel_mgmt_soc_litex.git $FIXED_PDK_SIM_FILES
