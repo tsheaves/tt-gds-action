@@ -70,7 +70,7 @@ runs:
         ./configure --prefix=$IVERILOG_ROOT
         make 
         make install
-        export PATH=$IVERILOG_ROOT/bin:$PATH 
+        echo "$IVERILOG_ROOT/bin" >> $GITHUB_PATH
 
     - name: Install fixed skywater SDF simulation libraries from EFABLESS
       shell: bash
@@ -87,10 +87,13 @@ runs:
         cp -rf tt_submission "${{ inputs.test-dir }}/gln"
         cp -rf sdf "${{ inputs.test-dir }}/sdf"
         cd "${{ inputs.test-dir }}"
-        python3 rename_gl_final.py -gln_src=gln/ -sdf_src=sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
+        python3 rename_gl_final.py -gln_src=./gln/ -sdf_src=./sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
         rm -f tb.vcd results.xml
         make clean
-        GATES=yes SIM=icarus FIXED_PDK_DIR=$FIXED_PDK_DIR make
+        GATES=yes \
+        SIM=icarus \
+        FIXED_PDK_DIR=$FIXED_PDK_DIR \
+        make
         # `make` will return success even if the tests fail, so check for failure in results.xml
         test -f results.xml
         ! grep failure results.xml
