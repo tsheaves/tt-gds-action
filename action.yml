@@ -68,6 +68,7 @@ runs:
       run: find runs/wokwi/
 
     - name: symb_link_extra_step
+      shell: bash
       run: |
         mkdir -p  runs/wokwi/reports/signoff/31-sta-rcx_nom
         mkdir -p  runs/wokwi/reports/signoff/30-sta-rcx_nom
