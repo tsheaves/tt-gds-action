@@ -26,7 +26,7 @@ runs:
         IVERILOG_TAG=master
         IVERILOG_ROOT=/home/runner/iverilog
         FIXED_PDK_SIM_FILES=/home/runner/pdk_sim_files
-        FIXED_PDK_DIR=$FIXED_PDK_SIM_FILES/verilog/cvc_pdk
+        FIXED_PDK_DIR=/home/runner/pdk_sim_files/verilog/cvc_pdk
         EOF
 
     - name: Install Sky130 PDK
@@ -71,7 +71,7 @@ runs:
         make 
         make install
         echo "$IVERILOG_ROOT/bin" >> $GITHUB_PATH
-        
+
 
     - name: Install fixed skywater SDF simulation libraries from EFABLESS
       shell: bash
@@ -91,10 +91,7 @@ runs:
         python3 rename_gl_final.py -gln_src=./gln/ -sdf_src=./sdf/ -sdf_dst=./sdf_renamed_out/ -gln_dst=./gln_renamed_out/
         rm -f tb.vcd results.xml
         make clean
-        GATES=yes \
-        SIM=icarus \
-        FIXED_PDK_DIR=$FIXED_PDK_DIR \
-        make
+        make GATES=yes SIM=icarus FIXED_PDK_DIR=$FIXED_PDK_DIR 
         # `make` will return success even if the tests fail, so check for failure in results.xml
         test -f results.xml
         ! grep failure results.xml
